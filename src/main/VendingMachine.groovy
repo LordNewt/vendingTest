@@ -24,6 +24,35 @@ class VendingMachine {
 
 
     //------------------//
+    //  Helper methods  //
+    //------------------//
+
+    void makeBestChange(Float balance) {
+        String bestCoin = null
+        // Look for the biggest coin you can add to the coin return
+        coins.each { String coin, Float value ->
+            if (!bestCoin) {
+                if (value <= balance) {
+                    bestCoin = coin
+                }
+            }
+            else if (value > coins[bestCoin] && value <= balance) {
+                bestCoin = coin
+            }
+        }
+        // Check results
+        if (!bestCoin) {
+            println String.format("ERROR: Cannot make any more change from \$%.2f", balance)
+        } else {
+            balance -= coins[bestCoin]
+            coinReturn.add(bestCoin)
+            if (balance) {
+                makeBestChange(balance)
+            }
+        }
+    }
+
+    //------------------//
     //  Public methods  //
     //------------------//
 
@@ -40,6 +69,17 @@ class VendingMachine {
             output.add(String.format("%s: \$%.2f", name, price))
         }
         return output
+    }
+
+    String checkForChange() {
+        String outputString = ""
+        if (!coinReturn) {
+            outputString += "No coins"
+        } else {
+
+        }
+        outputString += " in coin return"
+        return outputString
     }
 
     String insertCoin(String coin) {

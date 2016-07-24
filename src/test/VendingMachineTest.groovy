@@ -69,7 +69,7 @@ class VendingMachineTest {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
-        assertEquals("THANK YOU, no change returned", vendingMachine.selectProduct("Soda"))
+        assertEquals("THANK YOU. No coins in change slot", vendingMachine.selectProduct("Soda"))
     }
 
     @Test
@@ -82,7 +82,7 @@ class VendingMachineTest {
     void SelectChipsWithSufficientBalanceDisplaysThankYou() {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
-        assertEquals("THANK YOU, no change returned", vendingMachine.selectProduct("Chips"))
+        assertEquals("THANK YOU. No coins in change slot", vendingMachine.selectProduct("Chips"))
     }
 
     @Test
@@ -96,7 +96,7 @@ class VendingMachineTest {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
-        assertEquals("THANK YOU, returning \$0.10 in change", vendingMachine.selectProduct("Candy"))
+        assertEquals("THANK YOU. 1 Dime in change slot", vendingMachine.selectProduct("Candy"))
     }
 
 
@@ -161,7 +161,7 @@ class VendingMachineTest {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
-        assertEquals("THANK YOU, returning \$0.25 in change", vendingMachine.selectProduct("Chips"))
+        assertEquals("THANK YOU. 1 Quarter in change slot", vendingMachine.selectProduct("Chips"))
         assertEquals("1 Quarter returned", vendingMachine.collectChange())
         assertEquals("No coins in change slot", vendingMachine.checkForChange())
     }
