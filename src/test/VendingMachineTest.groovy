@@ -53,6 +53,11 @@ class VendingMachineTest {
     *  Select Product tests
      */
     @Test
+    void SelectUnknownProductDisplaysThatMessage() {
+        assertEquals("UNKNOWN PRODUCT", vendingMachine.selectProduct("Cat"))
+    }
+
+    @Test
     void SelectColaWithInsufficientBalanceDisplaysPrice() {
         vendingMachine.insertCoin("nickel")
         assertEquals("Price: \$1.00, balance: \$0.05", vendingMachine.selectProduct("Soda"))
@@ -64,7 +69,7 @@ class VendingMachineTest {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
-        assertEquals("THANK YOU", vendingMachine.selectProduct("Soda"))
+        assertEquals("THANK YOU, no change returned", vendingMachine.selectProduct("Soda"))
     }
 
     @Test
@@ -77,7 +82,7 @@ class VendingMachineTest {
     void SelectChipsWithSufficientBalanceDisplaysThankYou() {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
-        assertEquals("THANK YOU", vendingMachine.selectProduct("Chips"))
+        assertEquals("THANK YOU, no change returned", vendingMachine.selectProduct("Chips"))
     }
 
     @Test
@@ -87,25 +92,54 @@ class VendingMachineTest {
     }
 
     @Test
-    void SelectCandyWithSufficientBalanceDisplaysThankYou() {
+    void SelectCandyWithSufficientBalanceDisplaysThankYouAndChangeBalance() {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
-        assertEquals("THANK YOU", vendingMachine.selectProduct("Candy"))
+        assertEquals("THANK YOU, returning \$0.10 in change", vendingMachine.selectProduct("Candy"))
+    }
+
+
+    /*
+    *  Make change tests
+     */
+
+    @Test
+    void SelectProductWithExactChangeDisplaysThankYouAndNoChange() {
+        vendingMachine.insertCoin("quarter")
+        vendingMachine.insertCoin("quarter")
+        assertEquals("THANK YOU, no change returned", vendingMachine.selectProduct("Chips"))
+        assertEquals("No coins in change slot", vendingMachine.checkForChange())
     }
 
     @Test
-    void SelectMultipleWithSufficientBalanceDisplaysThankYouUntilBalanceTooLow() {
+    void SelectProductWithChangeShowsCorrectCoinInReturn() {
+        vendingMachine.insertCoin("quarter")
+        vendingMachine.insertCoin("quarter")
+        vendingMachine.insertCoin("quarter")
+        assertEquals("THANK YOU, returning \$0.25 in change", vendingMachine.selectProduct("Chips"))
+        assertEquals("1 Quarter in change slot", vendingMachine.checkForChange())
+    }
+
+    @Test
+    void SelectProductWithMultipleCoinsInChangeShowsCorrectCoinsInReturn() {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
+        vendingMachine.insertCoin("nickel")
+        assertEquals("THANK YOU, returning \$0.40 in change", vendingMachine.selectProduct("Candy"))
+        assertEquals("1 Quarter, 1 Dime, 1 Nickel in change slot", vendingMachine.checkForChange())
+    }
+
+    @Test
+    void CollectingChangeZeroesOutCoinSlot() {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
-        assertEquals("THANK YOU", vendingMachine.selectProduct("Soda"))
-        assertEquals("THANK YOU", vendingMachine.selectProduct("Chips"))
-        assertEquals("Price: \$0.65, balance: \$0.25", vendingMachine.selectProduct("Candy"))
+        assertEquals("THANK YOU, returning \$0.25 in change", vendingMachine.selectProduct("Chips"))
+        assertEquals("1 Quarter returned", vendingMachine.collectChange())
+        assertEquals("No coins in change slot", vendingMachine.checkForChange())
     }
 
 }
