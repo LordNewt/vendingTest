@@ -105,6 +105,30 @@ class VendingMachineTest {
      */
 
     @Test
+    void MakeBestChangeFromZeroReturnsEmptyChangeSlot() {
+        vendingMachine.makeBestChange(0.0)
+        assertEquals("No coins in change slot", vendingMachine.checkForChange())
+    }
+
+    @Test
+    void MakeBestChangeFromTenCentsReturnsDime() {
+        vendingMachine.makeBestChange(0.1)
+        assertEquals("1 Dime in change slot", vendingMachine.checkForChange())
+    }
+
+    @Test
+    void MakeBestChangeFromThirtyCentsReturnsQuarterAndNickel() {
+        vendingMachine.makeBestChange(0.3)
+        assertEquals("1 Quarter, 1 Nickel in change slot", vendingMachine.checkForChange())
+    }
+
+    @Test
+    void MakeBestChangeFromUnevenNumberDoesntBlowUp() {
+        vendingMachine.makeBestChange(0.12)
+        assertEquals("1 Dime in change slot", vendingMachine.checkForChange())
+    }
+
+    @Test
     void SelectProductWithExactChangeDisplaysThankYouAndNoChange() {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
