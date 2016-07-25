@@ -14,7 +14,11 @@ class VendingMachine {
             "quarter": 0.25
     ]
 
-    List<String> coinReturn = []
+    Map<String, Integer> coinReturn = [
+            "quarter": 0,
+            "dime": 0,
+            "nickel": 0
+    ]
 
     Map<String,Float> menu = [
             "soda": 1.0,
@@ -27,8 +31,11 @@ class VendingMachine {
     //  Helper methods  //
     //------------------//
 
-    void makeBestChange(Float balance) {
+    void makeBestChange() {
         String bestCoin = null
+        // Due to issues with Float value rounding, make sure we have
+        // a legit value
+        balance = balance.round(2)
         // Look for the biggest coin you can add to the coin return
         coins.each { String coin, Float value ->
             if (!bestCoin) {
@@ -41,15 +48,25 @@ class VendingMachine {
             }
         }
         // Check results
-        if (!bestCoin) {
-            println String.format("ERROR: Cannot make any more change from \$%.2f", balance)
-        } else {
+        if (bestCoin) {
             balance -= coins[bestCoin]
-            coinReturn.add(bestCoin)
-            if (balance) {
-                makeBestChange(balance)
+            coinReturn[bestCoin]++
+            if (balance > 0) {
+                makeBestChange()
             }
         }
+    }
+
+    String coinReturnToString() {
+        List<String> coinOutList = []
+        coinReturn.each { String coin, Integer quantity ->
+            if (quantity) {
+                coinOutList.add((quantity == 1) ? "1 ${coin.capitalize()}" : "${quantity} ${coin.capitalize()}}s")
+            }
+        }
+        String outputString = coinOutList.join(", ")
+        if (!outputString) { outputString += "No coins"}
+        return outputString
     }
 
     //------------------//
@@ -71,22 +88,11 @@ class VendingMachine {
         return output
     }
 
-    String checkForChange() {
-        String outputString = ""
-        if (!coinReturn) {
-            outputString += "No coins"
-        } else {
-
-        }
-        outputString += " in coin return"
-        return outputString
-    }
-
     String insertCoin(String coin) {
         if (coins.containsKey(coin.toLowerCase())) {
             balance += coins[coin.toLowerCase()]
         } else {
-            coinReturn.add(coin)
+            println "Unrecognized coin!"
         }
         displayBalance()
     }
@@ -96,13 +102,24 @@ class VendingMachine {
             Float price = menu[product.toLowerCase()]
             if (balance >= price) {
                 balance -= price
-                return "THANK YOU"
+                makeBestChange()
+                return ("THANK YOU. " + checkForChange())
             } else {
                 return String.format("Price: \$%.2f, balance: \$%.2f", price, balance)
             }
         } else {
             return "UNKNOWN PRODUCT"
         }
+    }
+
+    String checkForChange() {
+        return (coinReturnToString() + " in change slot")
+    }
+
+    String collectChange() {
+        String output = coinReturnToString() + " returned"
+        coinReturn.keySet().each { coinReturn[it] = 0 }
+        return output
     }
 
 }

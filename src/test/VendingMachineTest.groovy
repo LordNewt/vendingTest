@@ -106,25 +106,29 @@ class VendingMachineTest {
 
     @Test
     void MakeBestChangeFromZeroReturnsEmptyChangeSlot() {
-        vendingMachine.makeBestChange(0.0)
+        vendingMachine.balance = 0
+        vendingMachine.makeBestChange()
         assertEquals("No coins in change slot", vendingMachine.checkForChange())
     }
 
     @Test
     void MakeBestChangeFromTenCentsReturnsDime() {
-        vendingMachine.makeBestChange(0.1)
+        vendingMachine.balance = 0.1
+        vendingMachine.makeBestChange()
         assertEquals("1 Dime in change slot", vendingMachine.checkForChange())
     }
 
     @Test
     void MakeBestChangeFromThirtyCentsReturnsQuarterAndNickel() {
-        vendingMachine.makeBestChange(0.3)
+        vendingMachine.balance = 0.3
+        vendingMachine.makeBestChange()
         assertEquals("1 Quarter, 1 Nickel in change slot", vendingMachine.checkForChange())
     }
 
     @Test
     void MakeBestChangeFromUnevenNumberDoesntBlowUp() {
-        vendingMachine.makeBestChange(0.12)
+        vendingMachine.balance = 0.12
+        vendingMachine.makeBestChange()
         assertEquals("1 Dime in change slot", vendingMachine.checkForChange())
     }
 
@@ -132,7 +136,7 @@ class VendingMachineTest {
     void SelectProductWithExactChangeDisplaysThankYouAndNoChange() {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
-        assertEquals("THANK YOU, no change returned", vendingMachine.selectProduct("Chips"))
+        assertEquals("THANK YOU. No coins in change slot", vendingMachine.selectProduct("Chips"))
         assertEquals("No coins in change slot", vendingMachine.checkForChange())
     }
 
@@ -141,7 +145,7 @@ class VendingMachineTest {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
-        assertEquals("THANK YOU, returning \$0.25 in change", vendingMachine.selectProduct("Chips"))
+        assertEquals("THANK YOU. 1 Quarter in change slot", vendingMachine.selectProduct("Chips"))
         assertEquals("1 Quarter in change slot", vendingMachine.checkForChange())
     }
 
@@ -152,7 +156,7 @@ class VendingMachineTest {
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("nickel")
-        assertEquals("THANK YOU, returning \$0.40 in change", vendingMachine.selectProduct("Candy"))
+        assertEquals("THANK YOU. 1 Quarter, 1 Dime, 1 Nickel in change slot", vendingMachine.selectProduct("Candy"))
         assertEquals("1 Quarter, 1 Dime, 1 Nickel in change slot", vendingMachine.checkForChange())
     }
 
