@@ -7,7 +7,8 @@ class VendingMachine {
     //--------------//
 
     // Default initial product quantity
-    Integer INITIAL_QUANTITY = 5
+    static Integer INITIAL_QUANTITY = 5
+
 
     //----------------------//
     //  Member variables    //
@@ -15,17 +16,7 @@ class VendingMachine {
 
     float balance = 0.00
 
-    Map<String,Float> coins = [
-            "nickel": 0.05,
-            "dime": 0.10,
-            "quarter": 0.25
-    ]
-
-    Map<String, Integer> coinReturn = [
-            "quarter": 0,
-            "dime": 0,
-            "nickel": 0
-    ]
+    CoinTracker coinTracker = new CoinTracker()
 
     List<Product> products = [
             new Product(name: "soda", price: 1.0, quantity: INITIAL_QUANTITY),
@@ -39,52 +30,6 @@ class VendingMachine {
     //------------------//
 
     /*
-    *   Looks at the current balance and attempts to create change using the smallest
-    *   quantity of coins possible.
-     */
-    void makeBestChange() {
-        String bestCoin = null
-        // Due to issues with Float value rounding, make sure we have
-        // a legit value
-        balance = balance.round(2)
-        // Look for the biggest coin you can add to the coin return
-        coins.each { String coin, Float value ->
-            if (!bestCoin) {
-                if (value <= balance) {
-                    bestCoin = coin
-                }
-            }
-            else if (value > coins[bestCoin] && value <= balance) {
-                bestCoin = coin
-            }
-        }
-        // Check results
-        if (bestCoin) {
-            balance -= coins[bestCoin]
-            coinReturn[bestCoin]++
-            if (balance > 0) {
-                makeBestChange()
-            }
-        }
-    }
-
-    /*
-    *   Formats the contents of the coinReturn list to something that is
-    *   easy to read.  Displays in descending value order.
-     */
-    String coinReturnToString() {
-        List<String> coinOutList = []
-        coinReturn.each { String coin, Integer quantity ->
-            if (quantity) {
-                coinOutList.add((quantity == 1) ? "1 ${coin.capitalize()}" : "${quantity} ${coin.capitalize()}}s")
-            }
-        }
-        String outputString = coinOutList.join(", ")
-        if (!outputString) { outputString += "No coins"}
-        return outputString
-    }
-
-    /*
     *   Sets the quantity of a given product to a new value. Included as a
     *   debugging method, but could be used for other things in the future.
      */
@@ -93,6 +38,15 @@ class VendingMachine {
         if (!product) { return false }
         product.quantity = newQuantity
         return true
+    }
+
+    /*
+    *   Sets the quantity of a given coin in the machine to a new value.
+    *   Included as a debugging method, but could be used for other things
+    *   in the future.
+     */
+    Boolean setCoinQuantity(String coin, Integer newQuantity) {
+        return coinTracker.setMachineQuantity(coin, newQuantity)
     }
 
 
@@ -126,8 +80,9 @@ class VendingMachine {
     *   current balance appropriately
      */
     String insertCoin(String coin) {
-        if (coins.containsKey(coin.toLowerCase())) {
-            balance += coins[coin.toLowerCase()]
+        Float coinValue = coinTracker.getCoinValue(coin)
+        if (coinValue) {
+            balance += coinValue
         } else {
             println "Unrecognized coin!"
         }
@@ -158,19 +113,31 @@ class VendingMachine {
             return String.format("Price: \$%.2f, balance: \$%.2f", productData.price, balance)
         }
 
-        // Ok, all valid.  Buy the product, make chance.
+        // Make sure exact change isn't required
+        if (!coinTracker.canMakeChange(balance)) {
+            return String.format("EXACT CHANGE ONLY. Price: \$%.2f, balance: \$%.2f", productData.price, balance)
+        }
+
+        // Ok, all valid.  Buy the product, make change.
         productData.quantity--
         balance -= productData.price
-        makeBestChange()
+        coinTracker.makeBestChange(balance)
         return ("THANK YOU. " + checkForChange())
 
+    }
+
+    /*
+    *   Forces balance out as coins into coin return
+     */
+    void returnBalance() {
+        coinTracker.makeBestChange(balance)
     }
 
     /*
     *   Returns the contents of the coin return as a formatted string
      */
     String checkForChange() {
-        return (coinReturnToString() + " in change slot")
+        return (coinTracker.coinReturnToString() + " in change slot")
     }
 
     /*
@@ -178,8 +145,8 @@ class VendingMachine {
     *   out the coin return
      */
     String collectChange() {
-        String output = coinReturnToString() + " returned"
-        coinReturn.keySet().each { coinReturn[it] = 0 }
+        String output = coinTracker.coinReturnToString() + " returned"
+        coinTracker.resetChangeReturn()
         return output
     }
 

@@ -101,28 +101,28 @@ class VendingMachineTest {
     @Test
     void MakeBestChangeFromZeroReturnsEmptyChangeSlot() {
         vendingMachine.balance = 0
-        vendingMachine.makeBestChange()
+        vendingMachine.returnBalance()
         assertEquals("No coins in change slot", vendingMachine.checkForChange())
     }
 
     @Test
     void MakeBestChangeFromTenCentsReturnsDime() {
         vendingMachine.balance = 0.1
-        vendingMachine.makeBestChange()
+        vendingMachine.returnBalance()
         assertEquals("1 Dime in change slot", vendingMachine.checkForChange())
     }
 
     @Test
     void MakeBestChangeFromThirtyCentsReturnsQuarterAndNickel() {
         vendingMachine.balance = 0.3
-        vendingMachine.makeBestChange()
+        vendingMachine.returnBalance()
         assertEquals("1 Quarter, 1 Nickel in change slot", vendingMachine.checkForChange())
     }
 
     @Test
     void MakeBestChangeFromUnevenNumberDoesntBlowUp() {
         vendingMachine.balance = 0.12
-        vendingMachine.makeBestChange()
+        vendingMachine.returnBalance()
         assertEquals("1 Dime in change slot", vendingMachine.checkForChange())
     }
 
