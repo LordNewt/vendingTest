@@ -59,43 +59,37 @@ class VendingMachineTest {
 
     @Test
     void SelectColaWithInsufficientBalanceDisplaysPrice() {
-        vendingMachine.insertCoin("nickel")
+        vendingMachine.balance = 0.05
         assertEquals("Price: \$1.00, balance: \$0.05", vendingMachine.selectProduct("Soda"))
     }
 
     @Test
     void SelectColaWithSufficientBalanceDisplaysThankYou() {
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
+        vendingMachine.balance = 1.0
         assertEquals("THANK YOU. No coins in change slot", vendingMachine.selectProduct("Soda"))
     }
 
     @Test
     void SelectChipsWithInsufficientBalanceDisplaysPrice() {
-        vendingMachine.insertCoin("nickel")
+        vendingMachine.balance = 0.05
         assertEquals("Price: \$0.50, balance: \$0.05", vendingMachine.selectProduct("Chips"))
     }
 
     @Test
     void SelectChipsWithSufficientBalanceDisplaysThankYou() {
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
+        vendingMachine.balance = 0.5
         assertEquals("THANK YOU. No coins in change slot", vendingMachine.selectProduct("Chips"))
     }
 
     @Test
     void SelectCandyWithInsufficientBalanceDisplaysPrice() {
-        vendingMachine.insertCoin("nickel")
+        vendingMachine.balance = 0.05
         assertEquals("Price: \$0.65, balance: \$0.05", vendingMachine.selectProduct("Candy"))
     }
 
     @Test
     void SelectCandyWithSufficientBalanceDisplaysThankYouAndChangeBalance() {
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
+        vendingMachine.balance = 0.75
         assertEquals("THANK YOU. 1 Dime in change slot", vendingMachine.selectProduct("Candy"))
     }
 
@@ -134,40 +128,47 @@ class VendingMachineTest {
 
     @Test
     void SelectProductWithExactChangeDisplaysThankYouAndNoChange() {
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
+        vendingMachine.balance = 0.5
         assertEquals("THANK YOU. No coins in change slot", vendingMachine.selectProduct("Chips"))
         assertEquals("No coins in change slot", vendingMachine.checkForChange())
     }
 
     @Test
     void SelectProductWithChangeShowsCorrectCoinInReturn() {
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
+        vendingMachine.balance = 0.75
         assertEquals("THANK YOU. 1 Quarter in change slot", vendingMachine.selectProduct("Chips"))
         assertEquals("1 Quarter in change slot", vendingMachine.checkForChange())
     }
 
     @Test
     void SelectProductWithMultipleCoinsInChangeShowsCorrectCoinsInReturn() {
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("nickel")
+        vendingMachine.balance = 1.05
         assertEquals("THANK YOU. 1 Quarter, 1 Dime, 1 Nickel in change slot", vendingMachine.selectProduct("Candy"))
         assertEquals("1 Quarter, 1 Dime, 1 Nickel in change slot", vendingMachine.checkForChange())
     }
 
+
+    /*
+    *  Return Coins test
+     */
+
     @Test
     void CollectingChangeZeroesOutCoinSlot() {
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
-        vendingMachine.insertCoin("quarter")
+        vendingMachine.balance = 0.75
         assertEquals("THANK YOU. 1 Quarter in change slot", vendingMachine.selectProduct("Chips"))
         assertEquals("1 Quarter returned", vendingMachine.collectChange())
         assertEquals("No coins in change slot", vendingMachine.checkForChange())
+    }
+
+
+    /*
+    *  Sold Out tests
+     */
+    @Test
+    void PurchasingSoldOutItemDisplaysUnavailableMessage() {
+        vendingMachine.balance = 1.0
+        vendingMachine.setProductQuantity("chips", 0)
+        assertEquals("SOLD OUT, please select a different product", vendingMachine.selectProduct("Chips"))
     }
 
 }
