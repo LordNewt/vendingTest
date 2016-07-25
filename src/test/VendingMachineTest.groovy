@@ -171,4 +171,23 @@ class VendingMachineTest {
         assertEquals("SOLD OUT, please select a different product", vendingMachine.selectProduct("Chips"))
     }
 
+
+    /*
+    *   Exact change tests
+     */
+    @Test
+    void ProductSelectedButOutOfBestCoinCanStillMakeChange() {
+        vendingMachine.balance = 0.6
+        assertTrue(vendingMachine.setCoinQuantity("dime", 0))
+        assertEquals("THANK YOU. 2 Nickels in change slot", vendingMachine.selectProduct("Chips"))
+    }
+
+    @Test
+    void UnableToMakeChangeForChipsDisplaysExactChangeMessage() {
+        vendingMachine.balance = 0.6
+        assertTrue(vendingMachine.setCoinQuantity("dime", 0))
+        assertTrue(vendingMachine.setCoinQuantity("nickel", 0))
+        assertEquals("EXACT CHANGE ONLY. Price: \$0.50, balance: \$0.60", vendingMachine.selectProduct("Chips"))
+    }
+
 }
