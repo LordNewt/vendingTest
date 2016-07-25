@@ -1,12 +1,7 @@
 package main
 
 class Console {
-
-    static void main(String... args) {
-        Boolean leaveMachine = false
-        VendingMachine machine = new VendingMachine()
-
-        println '''
+    static String welcomeString = '''
 Welcome to RoboBroVend!
 --
 To insert a coin, type "insert <coin name>" (i.e. insert nickel).
@@ -15,9 +10,30 @@ To insert a coin, type "insert <coin name>" (i.e. insert nickel).
 
 To purchase an item, type "buy <item>" (i.e. buy soda).
 
+To return your coins, type "return coins"
+To collect your chance, type "collect change"
+
 At any time, type "help" for a list of commands.
 --
 '''
+
+    static String helpString = '''
+Command syntax:  command <arguments>
+
+insert <coin>
+buy <product>
+show balance
+return coins
+collect change
+
+'''
+
+    static void main(String... args) {
+        Boolean leaveMachine = false
+        VendingMachine machine = new VendingMachine()
+
+        println welcomeString
+
         // On first run, display menu and balance
         //----------------------------------------
         machine.displayMenu().each { println it }
@@ -40,18 +56,27 @@ At any time, type "help" for a list of commands.
                 } else {
                     println "Must supply a coin as well, for example: insert nickle"
                 }
-                machine.displayBalance()
+                println machine.displayBalance()
             } else if (userInput[0] == "buy") {
                 if (userInput.size() > 1) {
                     println machine.selectProduct(userInput[1])
                 } else {
                     println "Must supply a product as well, for example: buy soda"
                 }
+            } else if (userInput[0] == "return" && userInput[1] == "coins") {
+                println machine.collectChange()
+            } else if (userInput[0] == "show" && userInput[1] == "balance") {
+                println machine.displayBalance()
+            } else if (userInput[0] == "collect" && userInput[1] == "change") {
+                println machine.collectChange()
+            } else if (userInput[0] == "help") {
+                println helpString
             } else if (userInput[0] == "exit") {
                 leaveMachine = true
             } else {
                 println "Unrecognized command!"
             }
+            println "--"
         }
 
         println '''
