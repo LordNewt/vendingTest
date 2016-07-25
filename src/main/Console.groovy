@@ -1,6 +1,11 @@
 package main
 
 class Console {
+
+    //------------------//
+    //  User messages   //
+    //------------------//
+
     static String welcomeString = '''
 Welcome to RoboBroVend!
 --
@@ -9,6 +14,7 @@ To insert a coin, type "insert <coin name>" (i.e. insert nickel).
   one at a time.
 
 To purchase an item, type "buy <item>" (i.e. buy soda).
+To view the menu, type "show menu"
 
 To return your coins, type "return coins"
 To collect your chance, type "collect change"
@@ -17,16 +23,29 @@ At any time, type "help" for a list of commands.
 --
 '''
 
+    static String signOffMessage = '''
+Thank you for shopping RoboBroVend!
+
+We know you have a choice of vending options, and we at RoboBroVend
+would like to say thank you for supporting our all-natural, free-range,
+locally-sourced, organic, non-GMO products.
+'''
+
     static String helpString = '''
 Command syntax:  command <arguments>
 
 insert <coin>
 buy <product>
 show balance
+show menu
 return coins
 collect change
-
 '''
+
+
+    //----------------------//
+    //  Actual console code //
+    //----------------------//
 
     static void main(String... args) {
         Boolean leaveMachine = false
@@ -65,6 +84,8 @@ collect change
                 }
             } else if (userInput[0] == "return" && userInput[1] == "coins") {
                 println machine.collectChange()
+            } else if (userInput[0] == "show" && userInput[1] == "menu") {
+                machine.displayMenu().each { println it }
             } else if (userInput[0] == "show" && userInput[1] == "balance") {
                 println machine.displayBalance()
             } else if (userInput[0] == "collect" && userInput[1] == "change") {
@@ -79,12 +100,8 @@ collect change
             println "--"
         }
 
-        println '''
-Thank you for shopping RoboBroVend!
-
-We know you have a choice of vending options, and we at RoboBroVend
-would like to say thank you for supporting our all-natural, free-range,
-locally-sourced, organic, non-GMO products.
-'''
+        // When the user exits, give them a sign-off message
+        //---------------------------------------------------
+        println signOffMessage
     }
 }

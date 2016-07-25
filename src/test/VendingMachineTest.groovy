@@ -167,7 +167,7 @@ class VendingMachineTest {
     @Test
     void PurchasingSoldOutItemDisplaysUnavailableMessage() {
         vendingMachine.balance = 1.0
-        vendingMachine.setProductQuantity("chips", 0)
+        assertTrue(vendingMachine.setProductQuantity("chips", 0))
         assertEquals("SOLD OUT, please select a different product", vendingMachine.selectProduct("Chips"))
     }
 
