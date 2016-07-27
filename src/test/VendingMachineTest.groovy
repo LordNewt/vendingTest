@@ -190,4 +190,15 @@ class VendingMachineTest {
         assertEquals("EXACT CHANGE ONLY. Price: \$0.50, balance: \$0.60", vendingMachine.selectProduct("Chips"))
     }
 
+    @Test
+    void OnlyAbleToMakeChangeWithUserCoinsDoesNotDisplayExactChangeMessage() {
+        assertTrue(vendingMachine.setCoinQuantity("quarter", 0))
+        assertTrue(vendingMachine.setCoinQuantity("nickel",0))
+        vendingMachine.coinTracker.coinData.each { it.inQueue = 0 }
+        vendingMachine.insertCoin("quarter")
+        vendingMachine.insertCoin("quarter")
+        vendingMachine.insertCoin("quarter")
+        assertEquals("THANK YOU. 1 Dime in change slot", vendingMachine.selectProduct("Candy"))
+    }
+
 }
