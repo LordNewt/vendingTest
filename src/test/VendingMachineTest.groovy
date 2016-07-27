@@ -193,7 +193,7 @@ class VendingMachineTest {
     @Test
     void OnlyAbleToMakeChangeWithUserCoinsDoesNotDisplayExactChangeMessage() {
         assertTrue(vendingMachine.setCoinQuantity("quarter", 0))
-        assertTrue(vendingMachine.setCoinQuantity("nickel",0))
+        assertTrue(vendingMachine.setCoinQuantity("dime",0))
         vendingMachine.coinTracker.coinData.each { it.inQueue = 0 }
         vendingMachine.insertCoin("quarter")
         vendingMachine.insertCoin("quarter")
