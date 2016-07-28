@@ -83,6 +83,9 @@ class VendingMachine {
         Float coinValue = coinTracker.getCoinValue(coin)
         if (coinValue) {
             balance += coinValue
+            if (!coinTracker.addCoinToQueue(coin)) {
+                println "Failed to get ${coin} into queue"
+            }
         } else {
             println "Unrecognized coin!"
         }
@@ -122,6 +125,9 @@ class VendingMachine {
         productData.quantity--
         balance -= productData.price
         coinTracker.makeBestChange(balance)
+        // Move the "in queue" coins into the machine
+        coinTracker.putCoinsIntoMachine()
+        // Return a thank you message to the user
         return ("THANK YOU. " + checkForChange())
 
     }

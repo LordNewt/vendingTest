@@ -22,9 +22,9 @@ class CoinTracker {
 
     // Information about coin quantity for the machine
     List<CoinData> coinData = [
-            new CoinData(name: "quarter", inMachine: INITIAL_QUANTITY, inCoinReturn: 0),
-            new CoinData(name: "dime", inMachine: INITIAL_QUANTITY, inCoinReturn: 0),
-            new CoinData(name: "nickel", inMachine: INITIAL_QUANTITY, inCoinReturn: 0)
+            new CoinData(name: "quarter", inQueue: 0, inMachine: INITIAL_QUANTITY, inCoinReturn: 0),
+            new CoinData(name: "dime", inQueue: 0, inMachine: INITIAL_QUANTITY, inCoinReturn: 0),
+            new CoinData(name: "nickel", inQueue: 0, inMachine: INITIAL_QUANTITY, inCoinReturn: 0)
     ]
 
 
@@ -51,14 +51,14 @@ class CoinTracker {
                 // Only choose the coin if its value is less than or equal to
                 // the remaining balance, and there are some of that coin in
                 // the machine
-                if ((value <= balance) && coinDetails.inMachine) {
+                if ((value <= balance) && coinDetails.isAvailable()) {
                     bestCoin = coin
                 }
             }
             // Only select a different coin if it has a higher value than the
             // currently selected coin, its value is less than or equal to the
             // remaining balance, and there are some of that coin in the machine
-            else if (value > coins[bestCoin] && value <= balance && coinDetails.inMachine) {
+            else if (value > coins[bestCoin] && value <= balance && coinDetails.isAvailable()) {
                 bestCoin = coin
             }
         }
@@ -69,15 +69,15 @@ class CoinTracker {
         if (bestCoin) {
             // Reduce the remaining balance
             balance -= coins[bestCoin]
-            // Reduce the "in machine" quantity of the selected coin, and
-            // increment the "in return" quantity
+            // Reduce the quantity of the selected coin, either from the
+            // machine or the queue, and increment the "in return" quantity
             CoinData coinDetails = coinData.find { bestCoin == it.name }
             if (!coinDetails) {
                 println "ERROR: Could not find coin ${bestCoin} in machine"
                 return
             }
-            coinDetails.inMachine--
-            coinDetails.inCoinReturn++
+            // Already checked for validity, so not necessary to check again
+            coinDetails.ejectCoin()
             // If there is still a remaining balance, recurse through again
             if (balance > 0) {
                 makeBestChange(balance)
@@ -132,6 +132,20 @@ class CoinTracker {
     }
 
     /*
+    *   Increments one of the specified coins in the "queue" of the machine
+     */
+    Boolean addCoinToQueue(String coinName) {
+        CoinData coinDetails = coinData.find { coinName.toLowerCase() == it.name }
+        if (!coinDetails) {
+            println "Could not set queue quantity for ${coinName}"
+            return false
+        }
+        coinDetails.inQueue++
+        return true
+
+    }
+
+    /*
     *   Sets all "in coin return" values for coins to zero
      */
     void resetChangeReturn() {
@@ -144,17 +158,35 @@ class CoinTracker {
     *   the "in machine" and "in coin return" values
      */
     Boolean canMakeChange(Float balance) {
+        // Get initial quantities
+        Map<String,Integer> inMachine = [:]
+        Map<String,Integer> inQueue = [:]
+        coinData.each { CoinData coinDetails ->
+            inMachine[coinDetails.name] = coinDetails.inMachine
+            inQueue[coinDetails.name] = coinDetails.inQueue
+        }
+
+        // See if we can make correct change
         makeBestChange(balance)
         Float actualChange = 0
         coinData.each { actualChange += (it.inCoinReturn * coins[it.name]) }
 
         // Now that we'll have our answer, reset the work we did
         coinData.each { CoinData coinDetails ->
-            coinDetails.inMachine += coinDetails.inCoinReturn
+            coinDetails.inMachine = inMachine[coinDetails.name]
+            coinDetails.inQueue = inQueue[coinDetails.name]
             coinDetails.inCoinReturn = 0
         }
 
         // Return the answer
         return (actualChange.round(2) == balance.round(2))
     }
+
+    /*
+    *   Puts all "in queue" coins into the "in machine" category
+     */
+    void putCoinsIntoMachine() {
+        coinData.each { it.inMachine += it.inQueue; it.inQueue = 0 }
+    }
+
 }
